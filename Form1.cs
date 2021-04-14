@@ -95,7 +95,7 @@ namespace Get_TC_Login
             // 0:Import from TC; 1: Export to TC)
             if (comboBox_ExpImpTC.SelectedIndex == 0)
             {   
-                File.WriteAllText(TC_SAP_MN, "set SAP_MN=");
+                File.WriteAllText(TC_SAP_MN, "SET SAP_MN=");
                 File.AppendAllText(TC_SAP_MN, textBox_SAP_MN.Text + Environment.NewLine);
                 File.AppendAllText(TC_SAP_MN, "SET SAP_Rev=");
                 File.AppendAllText(TC_SAP_MN, textBox_SAP_Rev.Text + Environment.NewLine);
@@ -154,7 +154,6 @@ namespace Get_TC_Login
             
             if (err_code != 0)
             {
-                //MessageBox.Show("Error: " + err_code, "Export Teamcenter to ELCAD");
                 errorProvider1.SetError(comboBox_ExpImpTC, err_msg);
             }
             else {

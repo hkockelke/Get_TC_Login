@@ -1,8 +1,8 @@
 @echo off
-REM -------------------------
+REM ------------------------------
 REM  Putzmeister 2021
-REM  Import TC Data to ELCAD
-REM --------------------------
+REM  Import from TC Data to ELCAD
+REM ------------------------------
 
 SETLOCAL EnableDelayedExpansion
 
@@ -27,31 +27,50 @@ if not exist %ELCAD_Base_dir% mkdir %ELCAD_Base_dir%
 
 SET "LogBaseDIR=%ELCAD_Base_dir%Logs"
 if not exist %LogBaseDIR% mkdir %LogBaseDIR%
-SET "QueryLog=%LogBaseDIR%\%DateFormated%_%TimeFormated%_%RevisionID%_Query.log"
-SET "ExportLog=%LogBaseDIR%\%DateFormated%_%TimeFormated%_%RevisionID%_Export.log"
-SET "CMDLog=%LogBaseDIR%\%DateFormated%_%TimeFormated%_%RevisionID%_CMD.log"
-echo Start of Export Commands>%CMDLog%
+SET "QueryLog=%LogBaseDIR%\%DateFormated%_%TimeFormated%_Query.log"
+SET "ExportLog=%LogBaseDIR%\%DateFormated%_%TimeFormated%_Export.log"
+SET "CMDLog=%LogBaseDIR%\%DateFormated%_%TimeFormated%_CMD.log"
+
+ECHO Start of Teamcenter Export Commands>%CMDLog%
+ECHO ___________________________________>>%CMDLog%
+
+ECHO SPLM_SHR_DIR : %SPLM_SHR_DIR%>>%CMDLog%
 
 ECHO.
 ECHO Input Parameters>>%CMDLog%
 ECHO 1: %1>>%CMDLog%
 ECHO 2: %2>>%CMDLog%
-SET "InputDir=%1"
-ECHO InputDir: %InputDir%>>%CMDLog%
-SET "Checkout=%2"
+ECHO 3: %3>>%CMDLog%
+SET "SAP_MATNO=%1"
+ECHO SAP_MATNO: %SAP_MATNO%>>%CMDLog%
+SET "RevisionID=%2"
+ECHO RevisionID: %RevisionID%>>%CMDLog%
+SET "Checkout=%3"
 ECHO Checkout: %Checkout%>>%CMDLog%
 
 set TC_DATASET_CHECKOUT=Y
 if /i "%Checkout%" == "false"  set TC_DATASET_CHECKOUT=N
 
 
-for /f "tokens=1,2 delims=_" %%a in ("%InputDir%") do (
-SET "SAP_MATNO=%%a" 
-SET "RevisionID=%%b" )
+REM for /f "tokens=1,2 delims=_" %%a in ("%InputDir%") do (
+REM    SET "SAP_MATNO=%%a" 
+REM    SET "RevisionID=%%b" 
+REM )
 
-ECHO SAP_MATNO: %SAP_MATNO%>>%CMDLog%
-ECHO RevisionID: %RevisionID%>>%CMDLog%
+ECHO SAP_MATNO:  %SAP_MATNO%
+ECHO RevisionID: %RevisionID%
+ECHO Checkout:   %Checkout%
 ECHO.
+
+REM Contains the output dir 
+set "ELCAD_TC_DIR_CMD=%ELCAD_Base_dir%\TC_SAP_MN.cmd"
+
+if exist %ELCAD_TC_DIR_CMD% (
+   call %ELCAD_TC_DIR_CMD%
+) else (
+   goto :errorExit
+)
+ECHO ELCAD_IMP_TC_DIR: %ELCAD_IMP_TC_DIR%>>%CMDLog%
 
 SET "QueryBaseDIR=%ELCAD_Base_dir%QueryResults"
 if not exist %QueryBaseDIR% mkdir %QueryBaseDIR%
@@ -68,10 +87,10 @@ SET "ExportFile=%ExportDIR%\exportList.txt"
 
 SET "ExportBaseDIR_ELCAD=%ExportBaseDir%\export"
 SET "LocalBaseDIR_ELCAD=%ExportBaseDir%\local"
-SET "ServerBaseDIR_ELCAD=%ExportBaseDir%\server"
+SET "importBaseDIR_ELCAD=%ExportBaseDir%\import"
 if not exist %ExportBaseDIR_ELCAD% mkdir %ExportBaseDIR_ELCAD%
 if not exist %LocalBaseDIR_ELCAD% mkdir %LocalBaseDIR_ELCAD%
-if not exist %ServerBaseDIR_ELCAD% mkdir %ServerBaseDIR_ELCAD%
+if not exist %importBaseDIR_ELCAD% mkdir %importBaseDIR_ELCAD%
 
 
 REM clean-up first
@@ -79,16 +98,15 @@ IF EXIST %ExportFile% (
     del %ExportFile%
 )
 
+ECHO ELCAD_Base_dir: %ELCAD_Base_dir%>>%CMDLog%
 ECHO QueryBaseDIR: %QueryBaseDIR%>>%CMDLog%
 ECHO QueryResult: %QueryResult%>>%CMDLog%
-ECHO ExportBaseDir: %ExportBaseDir%>>%CMDLog%
 ECHO ExportDIR: %ExportDIR%>>%CMDLog%
 ECHO ExportFile: %ExportFile%>>%CMDLog%
 ECHO.>>%CMDLog%
 ECHO ExportBaseDIR_ELCAD: %ExportBaseDIR_ELCAD%>>%CMDLog%
-ECHO LocalBaseDIR_ELCAD: %LocalBaseDIR_ELCAD%>>%CMDLog%
-ECHO ServerBaseDIR_ELCAD: %ServerBaseDIR_ELCAD%>>%CMDLog%
-
+ECHO LocalBaseDIR_ELCAD:  %LocalBaseDIR_ELCAD%>>%CMDLog%
+ECHO ImportBaseDIR_ELCAD: %importBaseDIR_ELCAD%>>%CMDLog%
 
 REM if not exist %TC_TMP_DIR% mkdir %TC_TMP_DIR%
 
@@ -97,13 +115,17 @@ set "ORACLE_SID=pmprod"
 echo %ORACLE_SID%>>%CMDLog%
 
 REM -- Login to TC --
-REM %ProgPath%Get_TC_Login.exe
 
-if exist "C:\plmtemp\ELCAD\TC_Login.cmd" (
-   call C:\plmtemp\ELCAD\TC_Login.cmd
+set "ELCAD_TC_CMD=%USERPROFILE%\TC_Login.cmd"
+
+if exist %ELCAD_TC_CMD% (
+   call %ELCAD_TC_CMD%
 ) else (
+   ECHO Error TC Login File missing
+   ECHO TC_Login File missing >>%CMDLog%
    goto :errorExit
 )
+
 
 REM -- Set Environment for TC Utils --
 REM set TC_TMP_DIR=%SPLM_TMP_DIR%
@@ -111,17 +133,39 @@ REM set TC_DATA=%SPLM_SHR_DIR%\%ORACLE_SID%data
 REM if exist %SPLM_SHR_DIR%\%ORACLE_SID%data\win64 set TC_DATA=%SPLM_SHR_DIR%\%ORACLE_SID%data\win64
 REM call %TC_DATA%\tc_profilevars
 
-call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat en tc_prompt %ORACLE_SID% tc116>>%CMDLog%
+set VERSION=tc116
+set Language=en
+set CONFIG=tc_prompt
+echo %SPLM_SHR_DIR% | findstr /l "azrweupdm33" >nul && set VERSION=tc13
+
+IF "%VERSION%" == "tc13" (
+   ECHO.>>%CMDLog%
+   ECHO "Teamcenter 13">>%CMDLog%
+   ECHO.>>%CMDLog%
+   
+   set ORACLE_SID=pmprod13
+   set NX_INST_DIR=nx1953
+   REM --------------
+   REM Therefore the delayedExpansion syntax exists, it uses ! instead of % and it is evaluated at execution time, not parse time.
+   REM Please note that in order to use !, the additional statement setlocal EnableDelayedExpansion is needed.
+   REM --------------
+   call %SPLM_SHR_DIR%\start_apps\!NX_INST_DIR!\start_nx.bat %Language% %CONFIG% !ORACLE_SID! %VERSION%>>%CMDLog%
+
+) else (
+
+   call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
+
+)
 
 set TC_BIN=%TC_ROOT%\bin
 
 set PATH=%TC_BIN%;%PATH%;C:\Windows\System32\WindowsPowerShell\v1.0\;
 
 
-ECHO ___________________________________________________________________________________________>>%CMDLog%
+ECHO ___________________________________________________________________________________>>%CMDLog%
 ECHO.>>%CMDLog%
-ECHO Create Loader File>>%CMDLog%
-ECHO ___________________________________________________________________________________________>>%CMDLog%
+ECHO Query SAP Mat No>>%CMDLog%
+ECHO ___________________________________________________________________________________>>%CMDLog%
 SETLOCAL EnableDelayedExpansion
 
 ECHO Get ItemId from SAP Mat Number
@@ -134,20 +178,27 @@ if errorlevel 1 (
 )
 
 If EXIST %QueryResult% (
-   FOR /f "tokens=1,2,3 delims=;" %%a IN (%QueryResult%) DO (
+   FOR /f "tokens=1,2,3,4,5,6 delims=;" %%a IN (%QueryResult%) DO (
       SET "ItemID=%%a"
+      SET "ItemRev=%%b"
+      SET "CADSystem=%%d"
+      SET "CADSource=%%e"
+      SET "RelStatus=%%f"
    )
 ) else (
    echo "Error Query">>%CMDLog%
    goto :errorExit
 )
 
-ECHO __________________________________________________________________________________________>>%CMDLog%
-echo Found %ItemID%
+ECHO ___________________________________________________________________________________>>%CMDLog%
+echo Found %ItemID% - %ItemRev%
+echo CAD-System %CADSystem% - %CADSource%
+echo Status %RelStatus%
 echo Found Item-Id %ItemID%>>%CMDLog%
-ECHO __________________________________________________________________________________________>>%CMDLog%
+ECHO ___________________________________________________________________________________>>%CMDLog%
 
 IF "%ItemID%" == "" (
+   echo Error   
    echo "Error ItemId">>%CMDLog%
    goto :errorExit
 )
@@ -158,10 +209,10 @@ REM echo -f=%ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -replace -d=%ItemID%_%Re
 echo -f=%ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -replace -d=%ItemID%_%RevisionID%_ELCAD -type=Zip -ref=ZIPFILE -item=%ItemID% -rev=%RevisionID% -rel=IMAN_specification -export=y>>%ExportFile%
 
 
-ECHO __________________________________________________________________________________________>>%CMDLog%
+ECHO ____________________________________________________________________________________>>%CMDLog%
 ECHO.>>%CMDLog%
 ECHO Export>>%CMDLog%
-ECHO __________________________________________________________________________________________>>%CMDLog%
+ECHO ____________________________________________________________________________________>>%CMDLog%
 ECHO.
 
 IF EXIST %ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip (
@@ -174,40 +225,55 @@ ECHO Execute the TC Export
 REM call %SPLM_SHR_DIR%\%ORACLE_SID%local\bin\tcpb_export_file.exe %UPG% -logfile=%ExportLog% -i=%ExportFile%>>%CMDLog%
 call %ProgPath%PM_ELCAD_Download_File.exe %UPG% -item=%ItemID% -rev=%RevisionID% -outputDir=%ExportDIR% -checkout=%TC_DATASET_CHECKOUT% -log=%ExportLog%>>%CMDLog%
 
+if ERRORLEVEL 1 goto :errorExit
+
+ECHO Export finished
+
 REM -- Rename --
 ECHO Rename>>%CMDLog%
-If EXIST %ExportDIR%\%SAP_MATNO%_%RevisionID%.zip  (
-   echo delete existing %ExportDIR%\%SAP_MATNO%_%RevisionID%.zip >>%CMDLog%
-   del %ExportDIR%\%SAP_MATNO%_%RevisionID%.zip
+If EXIST %ExportDIR%\%SAP_MATNO%%RevisionID%.zip  (
+   echo delete existing %ExportDIR%\%SAP_MATNO%%RevisionID%.zip >>%CMDLog%
+   del %ExportDIR%\%SAP_MATNO%%RevisionID%.zip
 )
 IF EXIST %ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip (
-    ren %ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip %SAP_MATNO%_%RevisionID%.zip 
-	echo %ExportDIR%\%SAP_MATNO%_%RevisionID%.zip >>%CMDLog%
+   ren %ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip %SAP_MATNO%%RevisionID%.zip 
+   echo %ExportDIR%\%SAP_MATNO%%RevisionID%.zip >>%CMDLog%
 ) else (
    echo %ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip>>%CMDLog%
+   echo Error tcpb_export_file
    echo "Error tcpb_export_file" >>%CMDLog%
    goto :errorExit
 )
 
 
 REM -- Extract with powershell cmd
-echo File found, extract to: %ServerBaseDIR_ELCAD%
-echo "Extract ZIP file">>%CMDLog%
-ECHO %PATH%>>%CMDLog%
-powershell.exe -command "Expand-Archive -Force '%ExportDIR%\%SAP_MATNO%_%RevisionID%.zip' '%ServerBaseDIR_ELCAD%'"
+echo Teamcenter Export File found
+REM echo "Extract ZIP file">>%CMDLog%
+REM ECHO %PATH%>>%CMDLog%
+REM powershell.exe -command "Expand-Archive -Force '%ExportDIR%\%SAP_MATNO%%RevisionID%.zip' '%importBaseDIR_ELCAD%'"
+
+
+echo "Move ZIP file to %ELCAD_IMP_TC_DIR%">>%CMDLog%
+move %ExportDIR%\%SAP_MATNO%%RevisionID%.zip %ELCAD_IMP_TC_DIR%
+
+echo %SAP_MATNO%%RevisionID%.zip > %ELCAD_IMP_TC_DIR%\ImportFromTC.txt
 
 if ERRORLEVEL 1 goto :errorExit
 
 :gracefullExit
+
+REM Pause
 del %QueryLog%
 del %CMDLog%
 REM del %ExportLog%
 del %ExportFile%
 del %QueryResult%
-
+if EXIST %ExportDIR%\ (
+   rmdir /S /Q %ExportDIR%
+)
 goto :EOF
 
-
 :errorExit
+echo Error Import from TC
 pause
 goto :EOF 1

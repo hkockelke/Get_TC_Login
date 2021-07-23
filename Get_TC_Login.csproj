@@ -35,6 +35,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -65,7 +67,9 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="PM_ELCAD_create_env.cmd" />
     <None Include="PM_ELCAD_Export_TC.cmd" />
     <None Include="PM_ELCAD_Import_TC.cmd" />
     <None Include="Properties\Settings.settings">
@@ -81,13 +85,22 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PM_Image.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PM_Logo_RGB_4000px.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) K:\KockelkeH\ELCAD
 copy $(TargetPath) C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data
+copy $(TargetPath) C:\plm\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data
 copy $(ProjectDir)PM_ELCAD_Export_TC.cmd K:\KockelkeH\ELCAD
 copy $(ProjectDir)PM_ELCAD_Import_TC.cmd K:\KockelkeH\ELCAD
 copy $(ProjectDir)PM_ELCAD_Export_TC.cmd C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data
-copy $(ProjectDir)PM_ELCAD_Import_TC.cmd C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data</PostBuildEvent>
+copy $(ProjectDir)PM_ELCAD_Import_TC.cmd C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data
+copy $(ProjectDir)PM_ELCAD_Export_TC.cmd C:\plm\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data
+copy $(ProjectDir)PM_ELCAD_Import_TC.cmd C:\plm\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data</PostBuildEvent>
   </PropertyGroup>
 </Project>

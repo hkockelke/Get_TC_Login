@@ -17,8 +17,8 @@ namespace Get_TC_Login
         /// <summary>
         /// Start the Login exe
         /// Arguments
-        /// 0 : Import from teamcenter
-        /// 1 : Export to Teamcenter (additional argument SAPMatNo_Rev)
+        /// 0 : Import from Teamcenter (additional Dir for zip file)
+        /// 1 : Export to Teamcenter (additional argument Dir+[SAPMatNo][Rev].zip)
         /// </summary>
         [STAThread]
         static void Main()
@@ -28,6 +28,7 @@ namespace Get_TC_Login
             string[] arguments = Environment.GetCommandLineArgs();
             int i_ECAD_dir = (int)ExpImp_TC_Dir.IMP_FROM_TC;
             string SAPMatNo_Rev = string.Empty;
+            string ELCAD_type = string.Empty;
             if (arguments.Length > 1)
             {
                 //MessageBox.Show(string.Join(", ", arguments), "GetCommandLineArgs");
@@ -37,14 +38,21 @@ namespace Get_TC_Login
                 {
                     i_ECAD_dir = (int)ExpImp_TC_Dir.IMP_FROM_TC; // the default
                 }
+                if (i_ECAD_dir == 0 && arguments.Length > 2)
+                {
+                    SAPMatNo_Rev = arguments[2];
+                }
                 if (i_ECAD_dir == 1 && arguments.Length > 2)
                 {
                     SAPMatNo_Rev = arguments[2];
+                    if (arguments.Length > 3) { 
+                       ELCAD_type = arguments[3];
+                    }
                 }
 
             }
 
-            Application.Run(new Form1(i_ECAD_dir, SAPMatNo_Rev));
+            Application.Run(new Form1(i_ECAD_dir, SAPMatNo_Rev, ELCAD_type));
         }
     }
 }

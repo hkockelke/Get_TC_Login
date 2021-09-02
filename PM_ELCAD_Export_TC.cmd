@@ -3,6 +3,7 @@ REM ---------------------------------
 REM  Putzmeister 2021
 REM  Export ELCAD Data to Teamcenter
 REM ---------------------------------
+REM  change: Sept 2, 2021 | Helmut | tcpb_import_file with option -de=c
 
 SETLOCAL EnableDelayedExpansion
 
@@ -163,11 +164,15 @@ If EXIST %QueryResult% (
       SET "CADSystem=%%d"
       SET "CADSource=%%e"
       SET "RelStatus=%%f"
+	  IF "%%d" == "E-CAD" goto :END_FOR_LOOP
+	  REM IF X"%RelStatus:C2NX=" == X%RelStatus% goto :END_FOR_LOOP
    )
 ) else (
    echo "Error Query">>%CMDLog%
    goto :errorExit
 )
+
+:END_FOR_LOOP
 
 ECHO ___________________________________________________________________________________>>%CMDLog%
 echo Found %ItemID% - %ItemRev%
@@ -219,8 +224,8 @@ if EXIST %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter\ (
 	   )
 	   if "%%~xf" == ".xls" (
 	      echo "Excel file">>%CMDLog%
-		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=r>>%CMDLog%
-		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=r>>%ImportFile%
+		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=c>>%CMDLog%
+		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=c>>%ImportFile%
 	   )
 	   if "%%~xf" == ".xlsx" (
 	      echo "ExcelX file">>%CMDLog%

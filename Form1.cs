@@ -33,7 +33,8 @@ namespace Get_TC_Login
             string USERPROFILE_DIR = Environment.GetEnvironmentVariable("USERPROFILE");
             string SPLM_APPL_DIR = Environment.GetEnvironmentVariable("SPLM_APPL_DIR");
             string SPLM_TMP_DIR = Environment.GetEnvironmentVariable("SPLM_TMP_DIR");
-            
+            Boolean b_test_system = false;
+
             if (string.IsNullOrEmpty(SPLM_APPL_DIR))
             { 
                 errorProvider1.SetError(comboBox_ExpImpTC, "SPLM_APPL_DIR not set");
@@ -119,6 +120,11 @@ namespace Get_TC_Login
             // Update to TC 13:
             // ELCAD_TC_Dir = SPLM_APPL_DIR + @"\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data";
             ELCAD_TC_Dir = SPLM_APPL_DIR + @"\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data";
+            if (b_test_system)
+            {
+                label_TestSystem.Visible = true;
+                ELCAD_TC_Dir = SPLM_APPL_DIR + @"\nx_plmshare_test\pmtest13local\pm_tools\ELCAD_Data";
+            }
             ELCAD_ImportFromTC_CMD = Path.Combine(ELCAD_TC_Dir, "PM_ELCAD_Import_TC.cmd");
             ELCAD_ExportToTC_CMD = Path.Combine(ELCAD_TC_Dir, "PM_ELCAD_Export_TC.cmd");
         }

@@ -56,6 +56,7 @@ namespace Get_TC_Login
             this.openProjectDialog = new System.Windows.Forms.OpenFileDialog();
             this.helpProvider_ELCAD_TC = new System.Windows.Forms.HelpProvider();
             this.PM_pictureBox = new System.Windows.Forms.PictureBox();
+            this.label_TestSystem = new System.Windows.Forms.Label();
             this.groupBox_Imp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.groupBox_Exp.SuspendLayout();
@@ -290,6 +291,17 @@ namespace Get_TC_Login
             this.PM_pictureBox.TabIndex = 19;
             this.PM_pictureBox.TabStop = false;
             // 
+            // label_TestSystem
+            // 
+            this.label_TestSystem.AutoSize = true;
+            this.label_TestSystem.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.label_TestSystem.Location = new System.Drawing.Point(228, 30);
+            this.label_TestSystem.Name = "label_TestSystem";
+            this.label_TestSystem.Size = new System.Drawing.Size(65, 13);
+            this.label_TestSystem.TabIndex = 20;
+            this.label_TestSystem.Text = "Test-System";
+            this.label_TestSystem.Visible = false;
+            // 
             // Form1
             // 
             this.AcceptButton = this.button_OK;
@@ -297,6 +309,7 @@ namespace Get_TC_Login
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.button_cancel;
             this.ClientSize = new System.Drawing.Size(340, 633);
+            this.Controls.Add(this.label_TestSystem);
             this.Controls.Add(this.PM_pictureBox);
             this.Controls.Add(this.comboBox_ExpImpTC);
             this.Controls.Add(this.groupBox_Exp);
@@ -351,6 +364,7 @@ namespace Get_TC_Login
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox comboBox_ELCAD_Type;
         private System.Windows.Forms.PictureBox PM_pictureBox;
+        private System.Windows.Forms.Label label_TestSystem;
     }
 }
 

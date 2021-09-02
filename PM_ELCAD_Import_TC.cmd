@@ -184,11 +184,14 @@ If EXIST %QueryResult% (
       SET "CADSystem=%%d"
       SET "CADSource=%%e"
       SET "RelStatus=%%f"
+      IF "%%d" == "E-CAD" goto :END_FOR_LOOP
    )
 ) else (
    echo "Error Query">>%CMDLog%
    goto :errorExit
 )
+
+:END_FOR_LOOP
 
 ECHO ___________________________________________________________________________________>>%CMDLog%
 echo Found %ItemID% - %ItemRev%

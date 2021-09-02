@@ -94,12 +94,9 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) K:\KockelkeH\ELCAD
-copy $(TargetPath) C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data
 copy $(TargetPath) C:\plm\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data
 copy $(ProjectDir)PM_ELCAD_Export_TC.cmd K:\KockelkeH\ELCAD
 copy $(ProjectDir)PM_ELCAD_Import_TC.cmd K:\KockelkeH\ELCAD
-copy $(ProjectDir)PM_ELCAD_Export_TC.cmd C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data
-copy $(ProjectDir)PM_ELCAD_Import_TC.cmd C:\plm\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data
 copy $(ProjectDir)PM_ELCAD_Export_TC.cmd C:\plm\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data
 copy $(ProjectDir)PM_ELCAD_Import_TC.cmd C:\plm\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data</PostBuildEvent>
   </PropertyGroup>

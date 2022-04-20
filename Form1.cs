@@ -30,6 +30,7 @@ namespace Get_TC_Login
         public Form1(int tc_dir, string SAPMatNo_Dir, string ELCAD_type)
         {
             InitializeComponent();
+            
             string USERPROFILE_DIR = Environment.GetEnvironmentVariable("USERPROFILE");
             string SPLM_APPL_DIR = Environment.GetEnvironmentVariable("SPLM_APPL_DIR");
             string SPLM_TMP_DIR = Environment.GetEnvironmentVariable("SPLM_TMP_DIR");
@@ -115,6 +116,11 @@ namespace Get_TC_Login
             }
 
             TC_Login_file = Path.Combine(USERPROFILE_DIR, "TC_Login.cmd");
+            textBox_user.Text = GetTCUser(TC_Login_file);
+            if (!string.IsNullOrEmpty(textBox_user.Text))
+            {
+                this.ActiveControl = this.textBox_Passw;
+            }
             TC_SAP_MN = Path.Combine(ELCAD_Work_Dir, "TC_SAP_MN.cmd");
             ELCAD_TC_ATTR_Template = Path.Combine(ELCAD_EXP_TC_DIR, "attribute_template.txt");
             // Update to TC 13:
@@ -278,6 +284,37 @@ namespace Get_TC_Login
                 path = temp;
             }
             return path;
+        }
+
+        /// <summary>
+        /// Get TC User from file with content: set "UPG=-u=TC-User -p=TC-Passw -g=..."
+        /// </summary>
+        /// <param name="login_file"></param>
+        /// <returns>TC Login UserId</returns>
+        private string GetTCUser(string login_file)
+        {
+            string returnUser = string.Empty;
+            try { 
+
+            if (File.Exists(login_file))
+            {
+                string content = File.ReadAllLines(login_file).First();
+                if (! string.IsNullOrEmpty(content))
+                {
+                    string partString1 = content.Remove(0, 12);
+                    if (!string.IsNullOrEmpty(partString1))
+                    {
+                        returnUser = partString1.Split(' ')[0];
+                    }
+                }
+            }
+            }
+            catch (Exception ex_gtu)
+            {
+                returnUser = string.Empty;
+                errorProvider1.SetError(textBox_user, ex_gtu.Message);
+            }
+            return returnUser;
         }
         private int WriteAttrFile(string path)
         {

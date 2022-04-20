@@ -114,10 +114,10 @@ REM set TC_DATA=%SPLM_SHR_DIR%\%ORACLE_SID%data
 REM if exist %SPLM_SHR_DIR%\%ORACLE_SID%data\win64 set TC_DATA=%SPLM_SHR_DIR%\%ORACLE_SID%data\win64
 REM call %TC_DATA%\tc_profilevars
 
-set VERSION=tc116
+set VERSION=tc13
 set Language=en
 set CONFIG=tc_prompt
-echo %SPLM_SHR_DIR% | findstr /l "azrweupdm33" >nul && set VERSION=tc13
+REM echo %SPLM_SHR_DIR% | findstr /l "azrweupdm33" >nul && set VERSION=tc13
 
 IF "%VERSION%" == "tc13" (
    ECHO.>>%CMDLog%
@@ -133,7 +133,7 @@ IF "%VERSION%" == "tc13" (
    call %SPLM_SHR_DIR%\start_apps\!NX_INST_DIR!\start_nx.bat %Language% %CONFIG% !ORACLE_SID! %VERSION%>>%CMDLog%
 
 ) else (
-
+   ECHO "Teamcenter version not supported">>%CMDLog%
    call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
 
 )
@@ -224,8 +224,8 @@ if EXIST %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter\ (
 	   )
 	   if "%%~xf" == ".xls" (
 	      echo "Excel file">>%CMDLog%
-		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=c>>%CMDLog%
-		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=c>>%ImportFile%
+		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_Excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=r>>%CMDLog%
+		  echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=PM5_Excel -ref=PM5_excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=r>>%ImportFile%
 	   )
 	   if "%%~xf" == ".xlsx" (
 	      echo "ExcelX file">>%CMDLog%

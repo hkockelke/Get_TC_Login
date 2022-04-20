@@ -133,10 +133,11 @@ REM set TC_DATA=%SPLM_SHR_DIR%\%ORACLE_SID%data
 REM if exist %SPLM_SHR_DIR%\%ORACLE_SID%data\win64 set TC_DATA=%SPLM_SHR_DIR%\%ORACLE_SID%data\win64
 REM call %TC_DATA%\tc_profilevars
 
-set VERSION=tc116
+REM only TC13 is supported (April 20, 2022)
+set VERSION=tc13
 set Language=en
 set CONFIG=tc_prompt
-echo %SPLM_SHR_DIR% | findstr /l "azrweupdm33" >nul && set VERSION=tc13
+REM echo %SPLM_SHR_DIR% | findstr /l "azrweupdm33" >nul && set VERSION=tc13
 
 IF "%VERSION%" == "tc13" (
    ECHO.>>%CMDLog%
@@ -152,7 +153,7 @@ IF "%VERSION%" == "tc13" (
    call %SPLM_SHR_DIR%\start_apps\!NX_INST_DIR!\start_nx.bat %Language% %CONFIG% !ORACLE_SID! %VERSION%>>%CMDLog%
 
 ) else (
-
+   ECHO "Teamcenter version not supported">>%CMDLog%
    call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
 
 )
@@ -209,7 +210,7 @@ IF "%ItemID%" == "" (
 
 ECHO Create Export File
 REM echo -f=%ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -replace -d=%ItemID%_%RevisionID%_ELCAD -type=Zip -ref=ZIPFILE -item=%ItemID% -rev=%RevisionID% -rel=IMAN_specification -export=y>>%CMDLog%
-echo -f=%ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -replace -d=%ItemID%_%RevisionID%_ELCAD -type=Zip -ref=ZIPFILE -item=%ItemID% -rev=%RevisionID% -rel=IMAN_specification -export=y>>%ExportFile%
+echo -f=%ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -replace -d=%ItemID%_%RevisionID%_ELCAD -rel=PM5_ELCAD_Relation -type=PM5_Data_ELCAD -ref=PM5_Zip_Reference -item=%ItemID% -rev=%RevisionID% -export=y>>%ExportFile%
 
 
 ECHO ____________________________________________________________________________________>>%CMDLog%

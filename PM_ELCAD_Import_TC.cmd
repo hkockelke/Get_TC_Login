@@ -36,6 +36,7 @@ ECHO Start of Teamcenter Export Commands>%CMDLog%
 ECHO ___________________________________>>%CMDLog%
 
 ECHO SPLM_SHR_DIR : %SPLM_SHR_DIR%>>%CMDLog%
+ECHO PM_TC_TEST_System : %PM_TC_TEST%>>%CMDLog%
 
 ECHO.
 ECHO Input Parameters>>%CMDLog%
@@ -115,7 +116,7 @@ ECHO ImportBaseDIR_ELCAD: %importBaseDIR_ELCAD%>>%CMDLog%
 
 REM if not exist %TC_TMP_DIR% mkdir %TC_TMP_DIR%
 
-set "ORACLE_SID=pmprod"
+set "ORACLE_SID=pmprod13"
 
 echo %ORACLE_SID%>>%CMDLog%
 

@@ -28,6 +28,7 @@ namespace Get_TC_Login
         static String ELCAD_IMP_TC_DIR;
         static String ELCAD_EXP_TC_DIR;
         static String ELCAD_TC_ATTR_Template;
+        static Boolean b_test_system = false;
 
         public Form1(int tc_dir, string SAPMatNo_Dir, string ELCAD_type)
         {
@@ -36,7 +37,7 @@ namespace Get_TC_Login
             string USERPROFILE_DIR = Environment.GetEnvironmentVariable("USERPROFILE");
             string SPLM_APPL_DIR = Environment.GetEnvironmentVariable("SPLM_APPL_DIR");
             string SPLM_TMP_DIR = Environment.GetEnvironmentVariable("SPLM_TMP_DIR");
-            Boolean b_test_system = false;
+            
 
             if (string.IsNullOrEmpty(SPLM_APPL_DIR))
             {
@@ -132,8 +133,7 @@ namespace Get_TC_Login
             }
             TC_SAP_MN = Path.Combine(ELCAD_Work_Dir, "TC_SAP_MN.cmd");
             ELCAD_TC_ATTR_Template = Path.Combine(ELCAD_EXP_TC_DIR, "attribute_template.txt");
-            // Update to TC 13:
-            // ELCAD_TC_Dir = SPLM_APPL_DIR + @"\nx120_plmshare\pmprodlocal\pm_tools\ELCAD_Data";
+            // Update to TC 13 and NX1965:
             ELCAD_TC_Dir = SPLM_APPL_DIR + @"\nx_plmshare\pmprod13local\pm_tools\ELCAD_Data";
             if (b_test_system)
             {
@@ -280,8 +280,8 @@ namespace Get_TC_Login
                 //err_code = 3;
                 if (!File.Exists(ELCAD_ImportFromTC_CMD))
                 {
-                    err_msg = "CMD not found";
-                    err_code = 4;
+                    err_msg = "CMD not found:" + ELCAD_ImportFromTC_CMD;
+                    err_code = 20;
                 }
                 else
                 {
@@ -309,7 +309,11 @@ namespace Get_TC_Login
                                 ProcessStartInfo startInfo = new ProcessStartInfo(ELCAD_ImportFromTC_CMD);
                                 startInfo.WorkingDirectory = ELCAD_Work_Dir;
                                 startInfo.WindowStyle = ProcessWindowStyle.Minimized;
-
+                                if (b_test_system)
+                                {
+                                    startInfo.UseShellExecute = false;
+                                    startInfo.EnvironmentVariables.Add("PM_TC_TEST", "1");
+                                }
                                 String arg_1 = SAPMatNo + " " + revision + " " + checkout_All.Checked.ToString() + " " + unzip;
                                 startInfo.Arguments = arg_1;
                                 // MessageBox.Show(ELCAD_ImportFromTC_CMD + " " + arg_1);

@@ -37,6 +37,7 @@ ECHO Start of Import to Teamcenter Commands>%CMDLog%
 ECHO ______________________________________>>%CMDLog%
 
 ECHO SPLM_SHR_DIR : %SPLM_SHR_DIR%>>%CMDLog%
+ECHO PM_TC_TEST_System : %PM_TC_TEST%>>%CMDLog%
 
 ECHO.
 ECHO Input Parameters>>%CMDLog%

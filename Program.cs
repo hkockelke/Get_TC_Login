@@ -7,7 +7,8 @@ using System.Windows.Forms;
 enum ExpImp_TC_Dir
 {
     EXP_TO_TC = 1,
-    IMP_FROM_TC = 0
+    IMP_FROM_TC = 0,
+    IMP_FROM_TC_LIST = 2
 }
 
 namespace Get_TC_Login
@@ -26,7 +27,7 @@ namespace Get_TC_Login
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             string[] arguments = Environment.GetCommandLineArgs();
-            int i_ECAD_dir = (int)ExpImp_TC_Dir.IMP_FROM_TC;
+            int i_ECAD_dir = (int)ExpImp_TC_Dir.IMP_FROM_TC_LIST;
             string SAPMatNo_Rev = string.Empty;
             string ELCAD_type = string.Empty;
             if (arguments.Length > 1)

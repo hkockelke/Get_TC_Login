@@ -3,6 +3,7 @@ REM ------------------------------
 REM  Putzmeister 2021
 REM  Import from TC Data to ELCAD
 REM ------------------------------
+REM  change: July 29, 2022 | Helmut | add new Parameter Unzip=true|false
 
 SETLOCAL EnableDelayedExpansion
 
@@ -41,12 +42,15 @@ ECHO Input Parameters>>%CMDLog%
 ECHO 1: %1>>%CMDLog%
 ECHO 2: %2>>%CMDLog%
 ECHO 3: %3>>%CMDLog%
+ECHO 4: %4>>%CMDLog%
 SET "SAP_MATNO=%1"
 ECHO SAP_MATNO: %SAP_MATNO%>>%CMDLog%
 SET "RevisionID=%2"
 ECHO RevisionID: %RevisionID%>>%CMDLog%
 SET "Checkout=%3"
 ECHO Checkout: %Checkout%>>%CMDLog%
+SET "Unzip=%4"
+ECHO Unzip: %Unzip%>>%CMDLog%
 
 set TC_DATASET_CHECKOUT=Y
 if /i "%Checkout%" == "false"  set TC_DATASET_CHECKOUT=N
@@ -60,6 +64,7 @@ REM )
 ECHO SAP_MATNO:  %SAP_MATNO%
 ECHO RevisionID: %RevisionID%
 ECHO Checkout:   %Checkout%
+ECHO Unzip:      %Unzip%
 ECHO.
 
 REM Contains the output dir 
@@ -154,8 +159,8 @@ IF "%VERSION%" == "tc13" (
 
 ) else (
    ECHO "Teamcenter version not supported">>%CMDLog%
-   call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
-
+   REM call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
+   goto :errorExit
 )
 
 set TC_BIN=%TC_ROOT%\bin
@@ -252,10 +257,12 @@ IF EXIST %ExportDIR%\%ItemID%_%RevisionID%_ELCAD.zip (
 
 REM -- Extract with powershell cmd
 echo Teamcenter Export File found
-REM echo "Extract ZIP file">>%CMDLog%
-REM ECHO %PATH%>>%CMDLog%
-REM powershell.exe -command "Expand-Archive -Force '%ExportDIR%\%SAP_MATNO%%RevisionID%.zip' '%importBaseDIR_ELCAD%'"
 
+if /i "%Unzip%" == "true" (
+   echo "Extract ZIP file">>%CMDLog%
+   REM ECHO %PATH%>>%CMDLog%
+   powershell.exe -command "Expand-Archive -Force '%ExportDIR%\%SAP_MATNO%%RevisionID%.zip' '%LocalBaseDIR_ELCAD%'"
+)
 
 echo "Move ZIP file to %ELCAD_IMP_TC_DIR%">>%CMDLog%
 move %ExportDIR%\%SAP_MATNO%%RevisionID%.zip %ELCAD_IMP_TC_DIR%
@@ -275,9 +282,11 @@ del %QueryResult%
 if EXIST %ExportDIR%\ (
    rmdir /S /Q %ExportDIR%
 )
-goto :EOF
+REM goto :EOF
+exit /B 0
 
 :errorExit
-echo Error Import from TC
-pause
-goto :EOF 1
+echo Error Import from TC >>%CMDLog%
+REM pause
+REM goto :EOF 1
+exit /B 1

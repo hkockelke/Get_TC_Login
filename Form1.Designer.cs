@@ -45,6 +45,11 @@ namespace Get_TC_Login
             this.button_OK = new System.Windows.Forms.Button();
             this.button_cancel = new System.Windows.Forms.Button();
             this.groupBox_Imp = new System.Windows.Forms.GroupBox();
+            this.groupBox_ImpList = new System.Windows.Forms.GroupBox();
+            this.progressBar_CSV = new System.Windows.Forms.ProgressBar();
+            this.checkout_All = new System.Windows.Forms.CheckBox();
+            this.textBox_CSV = new System.Windows.Forms.TextBox();
+            this.button_SelCSV = new System.Windows.Forms.Button();
             this.folderBrowserProject = new System.Windows.Forms.FolderBrowserDialog();
             this.textBox_SelProj = new System.Windows.Forms.TextBox();
             this.button_selProj = new System.Windows.Forms.Button();
@@ -57,7 +62,10 @@ namespace Get_TC_Login
             this.helpProvider_ELCAD_TC = new System.Windows.Forms.HelpProvider();
             this.PM_pictureBox = new System.Windows.Forms.PictureBox();
             this.label_TestSystem = new System.Windows.Forms.Label();
+            this.openCSVDialog = new System.Windows.Forms.OpenFileDialog();
+            this.label_working = new System.Windows.Forms.Label();
             this.groupBox_Imp.SuspendLayout();
+            this.groupBox_ImpList.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.groupBox_Exp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PM_pictureBox)).BeginInit();
@@ -190,12 +198,62 @@ namespace Get_TC_Login
             this.groupBox_Imp.Controls.Add(this.label2);
             this.groupBox_Imp.Controls.Add(this.textBox_SAP_MN);
             this.groupBox_Imp.Controls.Add(this.label1);
-            this.groupBox_Imp.Location = new System.Drawing.Point(-3, 250);
+            this.groupBox_Imp.Location = new System.Drawing.Point(-3, 252);
             this.groupBox_Imp.Name = "groupBox_Imp";
-            this.groupBox_Imp.Size = new System.Drawing.Size(342, 158);
+            this.groupBox_Imp.Size = new System.Drawing.Size(342, 157);
             this.groupBox_Imp.TabIndex = 11;
             this.groupBox_Imp.TabStop = false;
             this.groupBox_Imp.Text = "ELCAD import from TC";
+            // 
+            // groupBox_ImpList
+            // 
+            this.groupBox_ImpList.Controls.Add(this.label_working);
+            this.groupBox_ImpList.Controls.Add(this.progressBar_CSV);
+            this.groupBox_ImpList.Controls.Add(this.checkout_All);
+            this.groupBox_ImpList.Controls.Add(this.textBox_CSV);
+            this.groupBox_ImpList.Controls.Add(this.button_SelCSV);
+            this.groupBox_ImpList.Location = new System.Drawing.Point(3, 266);
+            this.groupBox_ImpList.Name = "groupBox_ImpList";
+            this.groupBox_ImpList.Size = new System.Drawing.Size(340, 143);
+            this.groupBox_ImpList.TabIndex = 21;
+            this.groupBox_ImpList.TabStop = false;
+            this.groupBox_ImpList.Text = "ELCAD import from TC List";
+            // 
+            // progressBar_CSV
+            // 
+            this.progressBar_CSV.Location = new System.Drawing.Point(34, 111);
+            this.progressBar_CSV.Name = "progressBar_CSV";
+            this.progressBar_CSV.Size = new System.Drawing.Size(267, 10);
+            this.progressBar_CSV.TabIndex = 25;
+            this.progressBar_CSV.UseWaitCursor = true;
+            // 
+            // checkout_All
+            // 
+            this.checkout_All.AutoSize = true;
+            this.checkout_All.Location = new System.Drawing.Point(124, 75);
+            this.checkout_All.Name = "checkout_All";
+            this.checkout_All.Size = new System.Drawing.Size(84, 17);
+            this.checkout_All.TabIndex = 24;
+            this.checkout_All.Text = "checkout all";
+            this.checkout_All.UseVisualStyleBackColor = true;
+            // 
+            // textBox_CSV
+            // 
+            this.textBox_CSV.Location = new System.Drawing.Point(124, 34);
+            this.textBox_CSV.Name = "textBox_CSV";
+            this.textBox_CSV.Size = new System.Drawing.Size(177, 20);
+            this.textBox_CSV.TabIndex = 22;
+            this.textBox_CSV.TextChanged += new System.EventHandler(this.textBox_CSV_TextChanged);
+            // 
+            // button_SelCSV
+            // 
+            this.button_SelCSV.Location = new System.Drawing.Point(28, 33);
+            this.button_SelCSV.Name = "button_SelCSV";
+            this.button_SelCSV.Size = new System.Drawing.Size(67, 23);
+            this.button_SelCSV.TabIndex = 23;
+            this.button_SelCSV.Text = "Sel CSV";
+            this.button_SelCSV.UseVisualStyleBackColor = true;
+            this.button_SelCSV.Click += new System.EventHandler(this.button_SelCSV_Click);
             // 
             // folderBrowserProject
             // 
@@ -268,7 +326,8 @@ namespace Get_TC_Login
             this.comboBox_ExpImpTC.FormattingEnabled = true;
             this.comboBox_ExpImpTC.Items.AddRange(new object[] {
             "Import from TC",
-            "Export to TC"});
+            "Export to TC",
+            "Import from TC List"});
             this.comboBox_ExpImpTC.Location = new System.Drawing.Point(138, 213);
             this.comboBox_ExpImpTC.Name = "comboBox_ExpImpTC";
             this.comboBox_ExpImpTC.Size = new System.Drawing.Size(156, 21);
@@ -302,6 +361,23 @@ namespace Get_TC_Login
             this.label_TestSystem.Text = "Test-System";
             this.label_TestSystem.Visible = false;
             // 
+            // openCSVDialog
+            // 
+            this.openCSVDialog.FileName = "openCSVFile";
+            this.openCSVDialog.Filter = "SAP MatNo|*.csv";
+            this.openCSVDialog.InitialDirectory = "c:\\plmtemp\\ELCAD\\import";
+            this.openCSVDialog.Title = "Select import-CSV file";
+            // 
+            // label_working
+            // 
+            this.label_working.AutoSize = true;
+            this.label_working.Location = new System.Drawing.Point(34, 94);
+            this.label_working.Name = "label_working";
+            this.label_working.Size = new System.Drawing.Size(72, 13);
+            this.label_working.TabIndex = 26;
+            this.label_working.Text = "label_working";
+            this.label_working.Visible = false;
+            // 
             // Form1
             // 
             this.AcceptButton = this.button_OK;
@@ -313,7 +389,6 @@ namespace Get_TC_Login
             this.Controls.Add(this.PM_pictureBox);
             this.Controls.Add(this.comboBox_ExpImpTC);
             this.Controls.Add(this.groupBox_Exp);
-            this.Controls.Add(this.groupBox_Imp);
             this.Controls.Add(this.button_cancel);
             this.Controls.Add(this.button_OK);
             this.Controls.Add(this.textBox_group);
@@ -322,12 +397,16 @@ namespace Get_TC_Login
             this.Controls.Add(this.label_password);
             this.Controls.Add(this.textBox_user);
             this.Controls.Add(this.label_user);
+            this.Controls.Add(this.groupBox_ImpList);
+            this.Controls.Add(this.groupBox_Imp);
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "ELCAD TC Interface";
             this.groupBox_Imp.ResumeLayout(false);
             this.groupBox_Imp.PerformLayout();
+            this.groupBox_ImpList.ResumeLayout(false);
+            this.groupBox_ImpList.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.groupBox_Exp.ResumeLayout(false);
             this.groupBox_Exp.PerformLayout();
@@ -365,6 +444,13 @@ namespace Get_TC_Login
         private System.Windows.Forms.ComboBox comboBox_ELCAD_Type;
         private System.Windows.Forms.PictureBox PM_pictureBox;
         private System.Windows.Forms.Label label_TestSystem;
+        private System.Windows.Forms.GroupBox groupBox_ImpList;
+        private System.Windows.Forms.TextBox textBox_CSV;
+        private System.Windows.Forms.Button button_SelCSV;
+        private System.Windows.Forms.OpenFileDialog openCSVDialog;
+        private System.Windows.Forms.CheckBox checkout_All;
+        private System.Windows.Forms.ProgressBar progressBar_CSV;
+        private System.Windows.Forms.Label label_working;
     }
 }
 

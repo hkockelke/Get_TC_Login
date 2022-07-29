@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO.Compression;
+using Microsoft.VisualBasic.FileIO;
 
 namespace Get_TC_Login
 {
@@ -23,6 +24,7 @@ namespace Get_TC_Login
         static String ELCAD_TC_Dir;
         static String ELCAD_Work_Dir;
         static String selected_Exp2TC_Proj;
+        static String selected_CSV_File;
         static String ELCAD_IMP_TC_DIR;
         static String ELCAD_EXP_TC_DIR;
         static String ELCAD_TC_ATTR_Template;
@@ -30,14 +32,14 @@ namespace Get_TC_Login
         public Form1(int tc_dir, string SAPMatNo_Dir, string ELCAD_type)
         {
             InitializeComponent();
-            
+
             string USERPROFILE_DIR = Environment.GetEnvironmentVariable("USERPROFILE");
             string SPLM_APPL_DIR = Environment.GetEnvironmentVariable("SPLM_APPL_DIR");
             string SPLM_TMP_DIR = Environment.GetEnvironmentVariable("SPLM_TMP_DIR");
             Boolean b_test_system = false;
 
             if (string.IsNullOrEmpty(SPLM_APPL_DIR))
-            { 
+            {
                 errorProvider1.SetError(comboBox_ExpImpTC, "SPLM_APPL_DIR not set");
             }
             if (string.IsNullOrEmpty(SPLM_TMP_DIR))
@@ -114,9 +116,16 @@ namespace Get_TC_Login
                     }
                 }
             }
+            else if (tc_dir == 2)
+            {
+                progressBar_CSV.Maximum = 1;
+                progressBar_CSV.Step = 1;
+                progressBar_CSV.Value = 0;
+            }
 
             TC_Login_file = Path.Combine(USERPROFILE_DIR, "TC_Login.cmd");
             textBox_user.Text = GetTCUser(TC_Login_file);
+            textBox_group.Text = GetTCGroup(TC_Login_file);
             if (!string.IsNullOrEmpty(textBox_user.Text))
             {
                 this.ActiveControl = this.textBox_Passw;
@@ -140,6 +149,7 @@ namespace Get_TC_Login
             //File.WriteAllText(TC_Login_file, textBox_user.Text + Environment.NewLine);
             //File.AppendAllText(TC_Login_file, textBox_Passw.Text + Environment.NewLine);
             //File.AppendAllText(TC_Login_file, textBox_group.Text + Environment.NewLine);
+            string unzip = "false";
             int err_code = 0;
             string err_msg = string.Empty;
 
@@ -151,9 +161,9 @@ namespace Get_TC_Login
             File.AppendAllText(TC_Login_file, textBox_group.Text);
             File.AppendAllText(TC_Login_file, "\"");
 
-            // 0: Import from TC; 1: Export to TC)
+            // 0: Import from TC; 1: Export to TC; 2: Import from TC List)
             if (comboBox_ExpImpTC.SelectedIndex == 0)
-            {   
+            {
                 File.WriteAllText(TC_SAP_MN, "REM Putzmeister ELCAD-TC interface" + Environment.NewLine);
                 /*
                 File.AppendAllText(TC_SAP_MN, "SET SAP_MN=");
@@ -178,8 +188,9 @@ namespace Get_TC_Login
                     startInfo.WindowStyle = ProcessWindowStyle.Normal;
                     string revision = textBox_SAP_Rev.Text.ToUpper();
 
-                    String arg_1 = textBox_SAP_MN.Text + " " + revision + " " + checkout.Checked.ToString();
+                    String arg_1 = textBox_SAP_MN.Text + " " + revision + " " + checkout.Checked.ToString() + " " + unzip;
                     startInfo.Arguments = arg_1;
+                    //startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     Process myProcess = Process.Start(startInfo);
 
                     myProcess.WaitForExit();
@@ -230,7 +241,7 @@ namespace Get_TC_Login
                                 // Ordinal match is safest, case-sensitive volumes can be mounted within volumes that
                                 // are case-insensitive.
                                 if (destinationPath.StartsWith(ELCAD_ExportToTC_ZIP_dir, StringComparison.Ordinal))
-                                    entry.ExtractToFile(destinationPath,true);
+                                    entry.ExtractToFile(destinationPath, true);
                             }
                         }
                     }
@@ -254,18 +265,93 @@ namespace Get_TC_Login
                     err_msg = "Error: CMD file does not exist " + ELCAD_ExportToTC_CMD;
                 }
             }
+            // Import from TC List
+            else if (comboBox_ExpImpTC.SelectedIndex == 2)
+            {
+                File.WriteAllText(TC_SAP_MN, "REM Putzmeister ELCAD-TC interface" + Environment.NewLine);
+                if (string.IsNullOrEmpty(ELCAD_IMP_TC_DIR))
+                {
+                    ELCAD_IMP_TC_DIR = Path.Combine(ELCAD_Work_Dir, "import");
+                }
+                File.AppendAllText(TC_SAP_MN, "SET \"ELCAD_IMP_TC_DIR=");
+                File.AppendAllText(TC_SAP_MN, ELCAD_IMP_TC_DIR + "\"" + Environment.NewLine);
+
+                //err_msg = "This function is not implemented";
+                //err_code = 3;
+                if (!File.Exists(ELCAD_ImportFromTC_CMD))
+                {
+                    err_msg = "CMD not found";
+                    err_code = 4;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(selected_CSV_File) && File.Exists(selected_CSV_File))
+                    {
+                        err_msg = "Error: Import from TC ";
+                        progressBar_CSV.Value = 0;
+                        progressBar_CSV.Step = 1;
+                        progressBar_CSV.Maximum = File.ReadLines(selected_CSV_File).Count();
+                        using (TextFieldParser csvParser = new TextFieldParser(selected_CSV_File))
+                        {
+                            csvParser.CommentTokens = new string[] { "#" };
+                            csvParser.SetDelimiters(new string[] { ";" });
+                            csvParser.HasFieldsEnclosedInQuotes = true;
+
+                            while (!csvParser.EndOfData)
+                            {
+                                string[] fields = csvParser.ReadFields();
+                                string SAPMatNo = fields[0];
+                                string revision = fields[1];
+                                unzip = "true";
+                                label_working.Visible = true;
+                                label_working.Text = SAPMatNo + ";" + revision + " ...";
+
+                                ProcessStartInfo startInfo = new ProcessStartInfo(ELCAD_ImportFromTC_CMD);
+                                startInfo.WorkingDirectory = ELCAD_Work_Dir;
+                                startInfo.WindowStyle = ProcessWindowStyle.Minimized;
+
+                                String arg_1 = SAPMatNo + " " + revision + " " + checkout_All.Checked.ToString() + " " + unzip;
+                                startInfo.Arguments = arg_1;
+                                // MessageBox.Show(ELCAD_ImportFromTC_CMD + " " + arg_1);
+                                Process myProcess = Process.Start(startInfo);
+
+                                myProcess.WaitForExit();
+                                
+                                if (myProcess.ExitCode != 0)
+                                {
+                                    err_code = myProcess.ExitCode;
+                                    err_msg += SAPMatNo + ";" + revision + " = " + err_code.ToString() + " ";
+                                }
+                                progressBar_CSV.PerformStep();
+                                progressBar_CSV.Update();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        err_msg = "import CSV file not exist: " + selected_CSV_File;
+                        err_code = 4;
+                    }
+                }
+            }
             else
             {
                 err_msg = "This function is n/a";
                 err_code = 2;
             }
-            
+
             if (err_code != 0)
             {
+                label_working.Text = "Error";
+                label_working.ForeColor = Color.Red;
                 errorProvider1.SetError(comboBox_ExpImpTC, err_msg);
             }
-            else {
-                Close();
+            else
+            {
+                label_working.Text = "done " + Path.GetFileName(selected_CSV_File);
+                textBox_CSV.Text = string.Empty;
+                selected_CSV_File = String.Empty;
+                //Close();
             }
         }
 
@@ -294,20 +380,21 @@ namespace Get_TC_Login
         private string GetTCUser(string login_file)
         {
             string returnUser = string.Empty;
-            try { 
-
-            if (File.Exists(login_file))
+            try
             {
-                string content = File.ReadAllLines(login_file).First();
-                if (! string.IsNullOrEmpty(content))
+
+                if (File.Exists(login_file))
                 {
-                    string partString1 = content.Remove(0, 12);
-                    if (!string.IsNullOrEmpty(partString1))
+                    string content = File.ReadAllLines(login_file).First();
+                    if (!string.IsNullOrEmpty(content))
                     {
-                        returnUser = partString1.Split(' ')[0];
+                        string partString1 = content.Remove(0, 12);
+                        if (!string.IsNullOrEmpty(partString1))
+                        {
+                            returnUser = partString1.Split(' ')[0];
+                        }
                     }
                 }
-            }
             }
             catch (Exception ex_gtu)
             {
@@ -316,6 +403,39 @@ namespace Get_TC_Login
             }
             return returnUser;
         }
+        private string GetTCGroup(string login_file)
+        {
+            string returnGroup = string.Empty;
+            try
+            {
+
+                if (File.Exists(login_file))
+                {
+                    string content = File.ReadAllLines(login_file).First();
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        string partString1 = content.Remove(0, 12);
+                        if (!string.IsNullOrEmpty(partString1))
+                        {
+                            string returnGroupComplete = partString1.Split(' ')[2];
+                            returnGroup = returnGroupComplete.Split('=')[1].TrimEnd('"');
+                        }
+                    }
+                }
+            }
+            catch (Exception ex_gtu)
+            {
+                returnGroup = string.Empty;
+                errorProvider1.SetError(textBox_user, ex_gtu.Message);
+            }
+            return returnGroup;
+        }
+
+        /// <summary>
+        /// Write Header of mapping file to set the ELCAD Item Rev Attribute
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private int WriteAttrFile(string path)
         {
             int return_code = 0;
@@ -344,7 +464,8 @@ namespace Get_TC_Login
             if (string.IsNullOrEmpty(elcad_type)) return 2;
 
             elcad_type = elcad_type.ToLower();
-            switch (elcad_type) {
+            switch (elcad_type)
+            {
                 case "hy-plan":
                     return_type = 1;
                     break;
@@ -358,7 +479,7 @@ namespace Get_TC_Login
                     //MessageBox.Show(err_msg);// string.Join(",", arguments));
                     break;
             }
-                
+
             return return_type;
         }
         /// <summary>
@@ -390,7 +511,7 @@ namespace Get_TC_Login
 
         private void button_cancel_Click(object sender, EventArgs e)
         {
-            File.Delete(TC_Login_file);
+            //File.Delete(TC_Login_file);
             File.Delete(TC_SAP_MN);
             Close();
         }
@@ -409,40 +530,40 @@ namespace Get_TC_Login
         }
 
 
-    private void textBox_user_TextChanged(object sender, EventArgs e)
-    {
-        if (! (string.IsNullOrEmpty(textBox_user.Text) || string.IsNullOrEmpty(textBox_Passw.Text)))
+        private void textBox_user_TextChanged(object sender, EventArgs e)
         {
-            button_OK.Enabled = true;
+            if (!(string.IsNullOrEmpty(textBox_user.Text) || string.IsNullOrEmpty(textBox_Passw.Text)))
+            {
+                button_OK.Enabled = true;
+            }
         }
-    }
 
-    private void label_user_Click(object sender, EventArgs e)
-    {
-
-    }
-
-    private void textBox1_TextChanged(object sender, EventArgs e)
-    {
-
-    }
-
-    private void folderBrowserProject_HelpRequest(object sender, EventArgs e)
-    {
-
-    }
-
-    private void button_selProj_Click(object sender, EventArgs e)
-    {
-        /*
-        DialogResult result = folderBrowserProject.ShowDialog();
-        if (result == DialogResult.OK)
+        private void label_user_Click(object sender, EventArgs e)
         {
-            textBox_SelProj.Text = folderBrowserProject.SelectedPath;
-            selected_Exp2TC_Proj = Path.GetFileName(textBox_SelProj.Text);
-            //MessageBox.Show(selected_Exp2TC_Proj, "Debug");
+
         }
-        */
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void folderBrowserProject_HelpRequest(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button_selProj_Click(object sender, EventArgs e)
+        {
+            /*
+            DialogResult result = folderBrowserProject.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                textBox_SelProj.Text = folderBrowserProject.SelectedPath;
+                selected_Exp2TC_Proj = Path.GetFileName(textBox_SelProj.Text);
+                //MessageBox.Show(selected_Exp2TC_Proj, "Debug");
+            }
+            */
             DialogResult result = openProjectDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
@@ -458,14 +579,30 @@ namespace Get_TC_Login
             if (comboBox_ExpImpTC.SelectedIndex == 1)
             {
                 groupBox_Imp.Enabled = false;
+                groupBox_Imp.Visible = true;
                 groupBox_Exp.Enabled = true;
+                groupBox_ImpList.Enabled = false;
+                groupBox_ImpList.Visible = false;
+                groupBox_ImpList.Enabled = false;
+                groupBox_ImpList.Visible = false;
             }
             else if (comboBox_ExpImpTC.SelectedIndex == 0)
             {
                 groupBox_Imp.Enabled = true;
+                groupBox_Imp.Visible = true;
                 groupBox_Exp.Enabled = false;
+                groupBox_ImpList.Enabled = false;
+                groupBox_ImpList.Visible = false;
             }
-            
+            else if (comboBox_ExpImpTC.SelectedIndex == 2)
+            {
+                groupBox_Imp.Enabled = false;
+                groupBox_Exp.Enabled = false;
+                groupBox_Imp.Visible = false;
+                groupBox_ImpList.Visible = true;
+                groupBox_ImpList.Enabled = true;
+            }
+
         }
 
         private void comboBox_ELCAD_Type_SelectedIndexChanged(object sender, EventArgs e)
@@ -491,6 +628,22 @@ namespace Get_TC_Login
         }
 
         private void textBox_SAP_Rev_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button_SelCSV_Click(object sender, EventArgs e)
+        {
+            DialogResult result = openCSVDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                textBox_CSV.Text = openCSVDialog.FileName;
+                //selected_CSV_File = Path.GetFileNameWithoutExtension(textBox_CSV.Text);
+                selected_CSV_File = textBox_CSV.Text;
+            }
+        }
+
+        private void textBox_CSV_TextChanged(object sender, EventArgs e)
         {
 
         }

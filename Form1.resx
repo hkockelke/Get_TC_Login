@@ -705,4 +705,7 @@
   <metadata name="helpProvider_ELCAD_TC.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>467, 9</value>
   </metadata>
+  <metadata name="openCSVDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>648, 9</value>
+  </metadata>
 </root>

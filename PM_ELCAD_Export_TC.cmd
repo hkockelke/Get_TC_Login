@@ -134,7 +134,7 @@ IF "%VERSION%" == "tc13" (
 
 ) else (
    ECHO "Teamcenter version not supported">>%CMDLog%
-   call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
+   REM call %SPLM_SHR_DIR%\start_apps\windows\start_nx120.bat %Language% %CONFIG% %ORACLE_SID% %VERSION%>>%CMDLog%
 
 )
 
@@ -288,7 +288,8 @@ if EXIST %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\ (
    rmdir /S /Q %ImportDIR%\%SAP_MATNO%%RevisionID%.pro
 )
 
-goto :EOF
+REM goto :EOF
+exit /B 0
 
 
 :errorExit
@@ -301,5 +302,7 @@ IF EXIST %ImportDIR%\%ItemID%_%RevisionID%_ELCAD.zip (
    echo DRename back >>%CMDLog%
    ren %ImportDIR%\%ItemID%_%RevisionID%_ELCAD.zip %SAP_MATNO%%RevisionID%.zip 
 ) 
-pause
-goto :EOF 1
+REM pause
+
+REM goto :EOF 1
+exit /B 1

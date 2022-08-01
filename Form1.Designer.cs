@@ -46,6 +46,7 @@ namespace Get_TC_Login
             this.button_cancel = new System.Windows.Forms.Button();
             this.groupBox_Imp = new System.Windows.Forms.GroupBox();
             this.groupBox_ImpList = new System.Windows.Forms.GroupBox();
+            this.label_working = new System.Windows.Forms.Label();
             this.progressBar_CSV = new System.Windows.Forms.ProgressBar();
             this.checkout_All = new System.Windows.Forms.CheckBox();
             this.textBox_CSV = new System.Windows.Forms.TextBox();
@@ -63,7 +64,6 @@ namespace Get_TC_Login
             this.PM_pictureBox = new System.Windows.Forms.PictureBox();
             this.label_TestSystem = new System.Windows.Forms.Label();
             this.openCSVDialog = new System.Windows.Forms.OpenFileDialog();
-            this.label_working = new System.Windows.Forms.Label();
             this.groupBox_Imp.SuspendLayout();
             this.groupBox_ImpList.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
@@ -212,16 +212,26 @@ namespace Get_TC_Login
             this.groupBox_ImpList.Controls.Add(this.checkout_All);
             this.groupBox_ImpList.Controls.Add(this.textBox_CSV);
             this.groupBox_ImpList.Controls.Add(this.button_SelCSV);
-            this.groupBox_ImpList.Location = new System.Drawing.Point(3, 266);
+            this.groupBox_ImpList.Location = new System.Drawing.Point(3, 252);
             this.groupBox_ImpList.Name = "groupBox_ImpList";
-            this.groupBox_ImpList.Size = new System.Drawing.Size(340, 143);
+            this.groupBox_ImpList.Size = new System.Drawing.Size(340, 157);
             this.groupBox_ImpList.TabIndex = 21;
             this.groupBox_ImpList.TabStop = false;
             this.groupBox_ImpList.Text = "ELCAD import from TC List";
             // 
+            // label_working
+            // 
+            this.label_working.AutoSize = true;
+            this.label_working.Location = new System.Drawing.Point(34, 98);
+            this.label_working.Name = "label_working";
+            this.label_working.Size = new System.Drawing.Size(72, 13);
+            this.label_working.TabIndex = 26;
+            this.label_working.Text = "label_working";
+            this.label_working.Visible = false;
+            // 
             // progressBar_CSV
             // 
-            this.progressBar_CSV.Location = new System.Drawing.Point(34, 111);
+            this.progressBar_CSV.Location = new System.Drawing.Point(34, 115);
             this.progressBar_CSV.Name = "progressBar_CSV";
             this.progressBar_CSV.Size = new System.Drawing.Size(267, 10);
             this.progressBar_CSV.TabIndex = 25;
@@ -367,16 +377,6 @@ namespace Get_TC_Login
             this.openCSVDialog.Filter = "SAP MatNo|*.csv";
             this.openCSVDialog.InitialDirectory = "c:\\plmtemp\\ELCAD\\import";
             this.openCSVDialog.Title = "Select import-CSV file";
-            // 
-            // label_working
-            // 
-            this.label_working.AutoSize = true;
-            this.label_working.Location = new System.Drawing.Point(34, 94);
-            this.label_working.Name = "label_working";
-            this.label_working.Size = new System.Drawing.Size(72, 13);
-            this.label_working.TabIndex = 26;
-            this.label_working.Text = "label_working";
-            this.label_working.Visible = false;
             // 
             // Form1
             // 

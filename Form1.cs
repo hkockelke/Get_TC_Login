@@ -185,8 +185,13 @@ namespace Get_TC_Login
 
                     ProcessStartInfo startInfo = new ProcessStartInfo(ELCAD_ImportFromTC_CMD);
                     startInfo.WorkingDirectory = ELCAD_Work_Dir;
-                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    startInfo.WindowStyle = ProcessWindowStyle.Minimized;
                     string revision = textBox_SAP_Rev.Text.ToUpper();
+                    if (b_test_system)
+                    {
+                        startInfo.UseShellExecute = false;
+                        startInfo.EnvironmentVariables.Add("PM_TC_TEST", "1");
+                    }
 
                     String arg_1 = textBox_SAP_MN.Text + " " + revision + " " + checkout.Checked.ToString() + " " + unzip;
                     startInfo.Arguments = arg_1;
@@ -210,7 +215,7 @@ namespace Get_TC_Login
                 {
                     ProcessStartInfo startInfo = new ProcessStartInfo(ELCAD_ExportToTC_CMD);
                     startInfo.WorkingDirectory = ELCAD_Work_Dir;
-                    startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                    startInfo.WindowStyle = ProcessWindowStyle.Minimized;
 
                     int project_strlen = selected_Exp2TC_Proj.Length;
                     // last char is the revision
@@ -244,6 +249,12 @@ namespace Get_TC_Login
                                     entry.ExtractToFile(destinationPath, true);
                             }
                         }
+                    }
+
+                    if (b_test_system)
+                    {
+                        startInfo.UseShellExecute = false;
+                        startInfo.EnvironmentVariables.Add("PM_TC_TEST", "1");
                     }
 
                     int rc_code = WriteAttrFile(ELCAD_TC_ATTR_Template);
@@ -649,7 +660,26 @@ namespace Get_TC_Login
 
         private void textBox_CSV_TextChanged(object sender, EventArgs e)
         {
-
+            // Import List
+            if (comboBox_ExpImpTC.SelectedIndex == 2)
+            {
+                if (!string.IsNullOrEmpty(textBox_CSV.Text))
+                {
+                    string selected_CSV_File = Path.GetFullPath(textBox_CSV.Text);
+                    if (File.Exists(selected_CSV_File))
+                    {
+                        button_OK.Enabled = true;
+                    }
+                    else
+                    {
+                        button_OK.Enabled = false;
+                    }
+                }
+                else
+                {
+                    button_OK.Enabled = false;
+                }
+            }
         }
     }
 }

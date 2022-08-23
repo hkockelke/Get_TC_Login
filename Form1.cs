@@ -149,7 +149,8 @@ namespace Get_TC_Login
             //File.WriteAllText(TC_Login_file, textBox_user.Text + Environment.NewLine);
             //File.AppendAllText(TC_Login_file, textBox_Passw.Text + Environment.NewLine);
             //File.AppendAllText(TC_Login_file, textBox_group.Text + Environment.NewLine);
-            string unzip = "false";
+
+            string unzip = "false"; // argument as string to cmd (Import from TC)
             int err_code = 0;
             string err_msg = string.Empty;
 
@@ -302,6 +303,7 @@ namespace Get_TC_Login
                         progressBar_CSV.Value = 0;
                         progressBar_CSV.Step = 1;
                         progressBar_CSV.Maximum = File.ReadLines(selected_CSV_File).Count();
+
                         using (TextFieldParser csvParser = new TextFieldParser(selected_CSV_File))
                         {
                             csvParser.CommentTokens = new string[] { "#" };
@@ -316,7 +318,7 @@ namespace Get_TC_Login
                                 unzip = "true";
                                 label_working.Visible = true;
                                 label_working.Text = SAPMatNo + ";" + revision + " ...";
-
+                                
                                 ProcessStartInfo startInfo = new ProcessStartInfo(ELCAD_ImportFromTC_CMD);
                                 startInfo.WorkingDirectory = ELCAD_Work_Dir;
                                 startInfo.WindowStyle = ProcessWindowStyle.Minimized;
@@ -331,14 +333,16 @@ namespace Get_TC_Login
                                 Process myProcess = Process.Start(startInfo);
 
                                 myProcess.WaitForExit();
-                                
+
+                                progressBar_CSV.PerformStep();
+                                progressBar_CSV.Update();
+                                progressBar_CSV.Refresh();
+
                                 if (myProcess.ExitCode != 0)
                                 {
                                     err_code = myProcess.ExitCode;
                                     err_msg += SAPMatNo + ";" + revision + " = " + err_code.ToString() + " ";
                                 }
-                                progressBar_CSV.PerformStep();
-                                progressBar_CSV.Update();
                             }
                         }
                     }
@@ -363,10 +367,17 @@ namespace Get_TC_Login
             }
             else
             {
-                label_working.Text = "done " + Path.GetFileName(selected_CSV_File);
-                textBox_CSV.Text = string.Empty;
-                selected_CSV_File = String.Empty;
-                //Close();
+                if (comboBox_ExpImpTC.SelectedIndex == 2)
+                {
+                    label_working.Text = "done " + Path.GetFileName(selected_CSV_File);
+                    textBox_CSV.Text = string.Empty;
+                    selected_CSV_File = String.Empty;
+                    // leave the appliation open, not started from ELCAD!
+                }
+                else
+                {
+                    Close();
+                }
             }
         }
 

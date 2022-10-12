@@ -269,6 +269,9 @@ if %B_Do_Attr% == 1 (
    ECHO Attributes>>%CMDLog%
    ECHO Add ELCAD Source System Attributes
    call %SPLM_SHR_DIR%\%ORACLE_SID%local\bin\tcpb_data_import %UPG% -input=%AttributeFile% -update_mode=MatchOnly -nodryrun -simple_mfk -return_error -log=%AttributeLog%>>%CMDLog%
+) else (
+   ECHO No Attributes>>%CMDLog% 
+   ECHO CAD-System [%CADSystem%] - [%CADSource%] >>%CMDLog%
 )
 
 if ERRORLEVEL 1 goto :errorExit

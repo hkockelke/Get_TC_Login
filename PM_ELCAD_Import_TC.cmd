@@ -151,7 +151,7 @@ IF "%VERSION%" == "tc13" (
    ECHO.>>%CMDLog%
    
    set ORACLE_SID=pmprod13
-   set NX_INST_DIR=nx1953
+   set NX_INST_DIR=nx2206
    REM --------------
    REM Therefore the delayedExpansion syntax exists, it uses ! instead of % and it is evaluated at execution time, not parse time.
    REM Please note that in order to use !, the additional statement setlocal EnableDelayedExpansion is needed.
@@ -173,7 +173,7 @@ ECHO ___________________________________________________________________________
 ECHO.>>%CMDLog%
 ECHO Query SAP Mat No>>%CMDLog%
 ECHO ___________________________________________________________________________________>>%CMDLog%
-SETLOCAL EnableDelayedExpansion
+REM SETLOCAL EnableDelayedExpansion
 
 ECHO Get ItemId from SAP Mat Number
 ECHO Get ItemId from SAP Mat Number>>%CMDLog%

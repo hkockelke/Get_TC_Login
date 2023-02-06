@@ -23,6 +23,8 @@ set TimeFormated=%TimeFormated::=%
 REM turns off BCT Exits output
 set BCT_DEBUG_TC_EXITS_STDOUT=0
 
+set "B_Do_Attr=false"
+
 SET ELCAD_Base_dir=%SPLM_TMP_DIR%\ELCAD\
 if not exist %ELCAD_Base_dir% mkdir %ELCAD_Base_dir%
 
@@ -91,10 +93,9 @@ ECHO USERPROFILE: %USERPROFILE%>>%CMDLog%
 
 REM if not exist %TC_TMP_DIR% mkdir %TC_TMP_DIR%
 
-REM set "ORACLE_SID=pmprod"
-REM set "SPLM_SHR_DIR=\\azrweupdm23.jumbo.net\plmshare"
+REM set "SPLM_SHR_DIR=\\azrweupdm33.jumbo.net\plmshare"
 
-set "ORACLE_SID=pmprod"
+set "ORACLE_SID=pmprod13"
 
 echo %ORACLE_SID%>>%CMDLog%
 
@@ -126,7 +127,7 @@ IF "%VERSION%" == "tc13" (
    ECHO.>>%CMDLog%
 
    set ORACLE_SID=pmprod13
-   set NX_INST_DIR=nx1953
+   set NX_INST_DIR=nx2206
    REM --------------
    REM Therefore the delayedExpansion syntax exists, it uses ! instead of % and it is evaluated at execution time, not parse time.
    REM Please note that in order to use !, the additional statement setlocal EnableDelayedExpansion is needed.
@@ -147,7 +148,7 @@ ECHO ___________________________________________________________________________
 ECHO.>>%CMDLog%
 ECHO Query>>%CMDLog%
 ECHO _________________________________________________________________________________________>>%CMDLog%
-SETLOCAL EnableDelayedExpansion
+REM SETLOCAL EnableDelayedExpansion
 
 ECHO Query ItemId from SAP Mat Number
 ECHO Get ItemId from SAP Mat Number>>%CMDLog%
@@ -180,6 +181,7 @@ echo Found %ItemID% - %ItemRev%
 echo CAD-System [%CADSystem%] - [%CADSource%]
 echo Status %RelStatus%
 echo Found Item-Id %ItemID%>>%CMDLog%
+echo CAD-System [%CADSystem%] - [%CADSource%]>>%CMDLog%
 ECHO ___________________________________________________________________________________>>%CMDLog%
 
 IF "%ItemID%" == "" (
@@ -213,7 +215,7 @@ ECHO Create Import File
 
 ECHO Create Import File>>%CMDLog%
 ECHO  %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter>>%CMDLog%
-if EXIST %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter\ (
+if EXIST %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter\  (
    REM ECHO For all Files do   >>%CMDLog%  
    for  %%f in ( %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter\*.* ) DO (
        echo %%f >>%CMDLog%
@@ -239,7 +241,7 @@ if EXIST %ImportDIR%\%SAP_MATNO%%RevisionID%.pro\Teamcenter\ (
 			   REM echo -f=%%f -d=%%~nxf -rel=IMAN_specification -type=MSExcelX -ref=excel -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV -status=IREV -de=r>>%ImportFile%
 	         )
 		  )
-    )
+   )
 )
 REM echo -f=%ImportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -d=%ItemID%_%RevisionID%_ELDAD -type=Zip -ref=ZIPFILE -rel=IMAN_specification -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV  -de=r>>%CMDLog%
 echo -f=%ImportDIR%\%ItemID%_%RevisionID%_ELCAD.zip -d=%ItemID%_%RevisionID%_ELCAD -type=PM5_Data_ELCAD -ref=PM5_Zip_Reference -rel=PM5_ELCAD_Relation -item=%ItemID% -rev=%RevisionID% -owner=IREV -group=IREV  -de=r>>%CMDLog%
@@ -255,17 +257,29 @@ REM SET NLS_LANG=GERMAN_GERMANY.WE8ISO8859P1
 
 ECHO Import in TC>>%CMDLog%
 ECHO Import Files in TC
-call %SPLM_SHR_DIR%\%ORACLE_SID%local\bin\tcpb_import_file.exe %UPG% -logfile=%ImportLog% -i=%ImportFile%>>%CMDLog%
+call %SPLM_SHR_DIR%\%ORACLE_SID%local\bin\tcpb_import_file.exe %UPG%  -i=%ImportFile%>>%CMDLog%
 
 if ERRORLEVEL 1 goto :errorExit
 
+ECHO Successfully Import in TC>>%CMDLog%
+
 REM IF CADSystem OR CADSource not set/blank do the attribute update
-set B_Do_Attr=0
-if "%CADSystem%" == "" set B_Do_Attr=1
-if "%CADSystem%" == " " set B_Do_Attr=1
-if "%CADSource%" == "" set B_Do_Attr=1
-if "%CADSource%" == " " set B_Do_Attr=1
-if %B_Do_Attr% == 1 (
+if DEFINED CADSystem (
+   if "X!CADSystem!" == "X" set "B_Do_Attr=true"
+   if "X!CADSystem!" == "X " set "B_Do_Attr=true"
+) else (
+   set "B_Do_Attr=true"
+)
+if DEFINED CADSource (
+   if "X!CADSource!" == "X" set "B_Do_Attr=true"
+   if "X!CADSource!" == "X " set "B_Do_Attr=true"
+) else (
+   set "B_Do_Attr=true"
+)
+
+echo "B_Do_Attr=!B_Do_Attr!" >>%CMDLog%
+
+if "!B_Do_Attr!" == "true" (
    ECHO Attributes>>%CMDLog%
    ECHO Add ELCAD Source System Attributes
    call %SPLM_SHR_DIR%\%ORACLE_SID%local\bin\tcpb_data_import %UPG% -input=%AttributeFile% -update_mode=MatchOnly -nodryrun -simple_mfk -return_error -log=%AttributeLog%>>%CMDLog%
@@ -274,11 +288,13 @@ if %B_Do_Attr% == 1 (
    ECHO CAD-System [%CADSystem%] - [%CADSource%] >>%CMDLog%
 )
 
+REM means errorcode of the last command greater-equal 1
 if ERRORLEVEL 1 goto :errorExit
 
 
 :gracefullExit
 
+ECHO Delete log files ...
 REM pause
 
 del %QueryLog%

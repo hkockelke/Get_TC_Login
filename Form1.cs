@@ -260,7 +260,7 @@ namespace Get_TC_Login
 
                     int rc_code = WriteAttrFile(ELCAD_TC_ATTR_Template);
                     string elcad_type = mapping_elcad_selection(comboBox_ELCAD_Type.SelectedIndex);
-
+                    
                     //String arg_1 = selected_Exp2TC_Proj;
                     String arg_1 = projectNo + " " + revision + " " + elcad_type;
                     startInfo.Arguments = arg_1;
@@ -546,7 +546,10 @@ namespace Get_TC_Login
         {
             if (!(string.IsNullOrEmpty(textBox_user.Text) || string.IsNullOrEmpty(textBox_Passw.Text)))
             {
-                button_OK.Enabled = true;
+                // index 0 and 1 are valid ELCAD types
+                if (comboBox_ELCAD_Type.SelectedIndex <= 1) { 
+                    button_OK.Enabled = true;
+                }
             }
         }
 
